@@ -1,14 +1,24 @@
 from typing import Optional
-import numpy as np
-import gymnasium as gym
+from enum import Enum
 
+import numpy as np
+import pygame
+
+import gymnasium as gym
+from gymnasium import spaces
+
+class Actions(Enum):
+    RIGHT = 0
+    UP = 1
+    LEFT = 2
+    DOWN = 3
 
 class GridWorldEnv(gym.Env):
-    def __init__(self, size: int = 5):
-        self.size = size
+    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
-        self._agent_location = np.array([-1, -1], dtype=np.int32)
-        self._target_location = np.array([-1, -1], dtype=np.int32)
+    def __init__(self, render_mode=None, size: int = 5):
+        self.size = size
+        self.window_size = 512
 
         self.observation_space = gym.spaces.Dict(
             {
@@ -16,15 +26,23 @@ class GridWorldEnv(gym.Env):
                 "target": gym.spaces.Box(0, size - 1, shape=(2,), dtype=np.int32),
             }
         )
+        self._agent_location = np.array([-1, -1], dtype=np.int32)
+        self._target_location = np.array([-1, -1], dtype=np.int32)
 
         self.action_space = gym.spaces.Discrete(4)
 
         self._action_to_direction = {
-            0: np.array([1, 0]),
-            1: np.array([0, 1]),
-            2: np.array([-1, 0]),
-            3: np.array([0, -1]),
+            Actions.RIGHT.value: np.array([1, 0]),
+            Actions.UP.value: np.array([0, 1]),
+            Actions.LEFT.value: np.array([-1, 0]),
+            Actions.DOWN.value: np.array([0, -1]),
         }
+
+        assert render_mode is None or render_mode in self.metadata["render_modes"]
+        self.render_mode = render_mode
+
+        self.window = None
+        self.clock = None
 
     def _get_obs(self):
         return {
@@ -39,7 +57,7 @@ class GridWorldEnv(gym.Env):
             )
         }
 
-    def reset(self, seed: Optional[int] = None, options: Optional[dict] = None):
+    def reset(self, seed=None, options=None):
         super().reset(seed=seed)
 
         self._agent_location = self.np_random.integers(0, self.size, size=2, dtype=int)
@@ -49,6 +67,9 @@ class GridWorldEnv(gym.Env):
 
         observation = self._get_obs()
         info = self._get_info()
+
+        if self.render_mode == "human":
+            self._render_frame()
 
         return observation, info
 
