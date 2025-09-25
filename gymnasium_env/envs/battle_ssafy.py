@@ -20,7 +20,7 @@ class GridWorldEnv(gym.Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
     def __init__(self, render_mode=None, size: int = 5):
-        self.size = size
+        self.size = 10
         self.window_size = 512
 
         self.observation_space = gym.spaces.Dict(
@@ -134,37 +134,25 @@ class GridWorldEnv(gym.Env):
                 self.window_size / self.size
         )
 
-        pygame.draw.rect(
-            canvas,
-            (255, 0, 0),
-            pygame.Rect(
-                pix_square_size * self._target_location,
-                (pix_square_size, pix_square_size),
-            ),
-        )
+        agent_image = pygame.image.load("C:/Users/SSAFY/PycharmProjects/gymnasium/gymnasium_env/envs/agent.png")
+        target_image = pygame.image.load("C:/Users/SSAFY/PycharmProjects/gymnasium/gymnasium_env/envs/target.png")
+        grass_image = pygame.image.load("C:/Users/SSAFY/PycharmProjects/gymnasium/gymnasium_env/envs/grass.png")
+        rock_image = pygame.image.load("C:/Users/SSAFY/PycharmProjects/gymnasium/gymnasium_env/envs/rock.png")
+        tree_image = pygame.image.load("C:/Users/SSAFY/PycharmProjects/gymnasium/gymnasium_env/envs/tree.png")
 
-        pygame.draw.circle(
-            canvas,
-            (0, 0, 255),
-            (self._agent_location + 0.5) * pix_square_size,
-            pix_square_size / 3,
-        )
+        agent_image = pygame.transform.scale(agent_image, (pix_square_size, pix_square_size));
+        target_image = pygame.transform.scale(target_image, (pix_square_size, pix_square_size));
+        tree_image = pygame.transform.scale(tree_image, (pix_square_size, pix_square_size));
+        rock_image = pygame.transform.scale(rock_image, (pix_square_size, pix_square_size));
+        grass_image = pygame.transform.scale(grass_image, (pix_square_size, pix_square_size));
 
-        for x in range(self.size + 1):
-            pygame.draw.line(
-                canvas,
-                0,
-                (0, pix_square_size * x),
-                (self.window_size, pix_square_size * x),
-                width=3,
-            )
-            pygame.draw.line(
-                canvas,
-                0,
-                (pix_square_size * x, 0),
-                (pix_square_size * x, self.window_size),
-                width=3,
-            )
+        for x in range(self.size):
+            for y in range(self.size):
+                canvas.blit(grass_image, (pix_square_size * x, pix_square_size * y))
+
+        canvas.blit(target_image, (pix_square_size * self._target_location))
+        canvas.blit(agent_image, (pix_square_size * self._agent_location))
+
 
         if self.render_mode == "human":
             self.window.blit(canvas, canvas.get_rect())
