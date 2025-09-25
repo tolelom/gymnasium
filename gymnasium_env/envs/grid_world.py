@@ -62,10 +62,10 @@ class GridWorldEnv(gym.Env):
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
 
-        self._agent_location = self.np_random.integers(0, self.size, size=2, dtype=int)
+        self._agent_location = self.np_random.integers(0, self.size, size=2, dtype=np.int32)
         self._target_location = self._agent_location
         while np.array_equal(self._target_location, self._agent_location):
-            self._target_location = self.np_random.integers(0, self.size, size=2, dtype=int)
+            self._target_location = self.np_random.integers(0, self.size, size=2, dtype=np.int32)
 
         observation = self._get_obs()
         info = self._get_info()
