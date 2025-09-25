@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Tuple
 from enum import Enum
 
 import numpy as np
@@ -60,7 +60,7 @@ class GridWorldEnv(gym.Env):
             )
         }
 
-    def reset(self, seed=None, options=None):
+    def reset(self, seed: Optional[int] = None, options: Optional[dict] = None) -> Tuple[dict, dict]:
         super().reset(seed=seed)
 
         self._agent_location = self.np_random.integers(0, self.size, size=2, dtype=np.int32)

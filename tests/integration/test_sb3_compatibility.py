@@ -20,55 +20,48 @@ except ImportError:
 class TestSB3Compatibility:
     """Stable Baselines3 호환성 테스트 클래스"""
 
-    @pytest.fixture
-    def env(self):
-        """테스트용 환경 픽스처"""
-        env = gym.make('gymnasium_env/GridWorld-v0', size=5)
-        yield env
-        env.close()
-
-    def test_sb3_env_checker(self, env):
+    def test_sb3_env_checker(self, wrapped_grid_world_env):
         """SB3 환경 검증 테스트"""
         try:
-            check_env(env)
+            check_env(wrapped_grid_world_env)
         except Exception as e:
             pytest.fail(f"Environment failed SB3 check_env: {e}")
 
-    def test_a2c_compatibility(self, env):
+    def test_a2c_compatibility(self, wrapped_grid_world_env):
         """A2C 알고리즘 호환성 테스트"""
         try:
             # A2C 모델 생성 (매우 적은 스텝으로 빠른 테스트)
-            model = A2C("MultiInputPolicy", env, verbose=0)
+            model = A2C("MultiInputPolicy", wrapped_grid_world_env, verbose=0)
 
             # 짧은 학습 실행
             model.learn(total_timesteps=100)
 
             # 예측 테스트
-            obs, _ = env.reset()
+            obs, _ = wrapped_grid_world_env.reset()
             action, _states = model.predict(obs, deterministic=True)
-            assert env.action_space.contains(action)
+            assert wrapped_grid_world_env.action_space.contains(action)
 
         except Exception as e:
             pytest.fail(f"A2C compatibility test failed: {e}")
 
-    def test_ppo_compatibility(self, env):
+    def test_ppo_compatibility(self, wrapped_grid_world_env):
         """PPO 알고리즘 호환성 테스트"""
         try:
             # PPO 모델 생성
-            model = PPO("MultiInputPolicy", env, verbose=0)
+            model = PPO("MultiInputPolicy", wrapped_grid_world_env, verbose=0)
 
             # 짧은 학습 실행
             model.learn(total_timesteps=100)
 
             # 예측 테스트
-            obs, _ = env.reset()
+            obs, _ = wrapped_grid_world_env.reset()
             action, _states = model.predict(obs, deterministic=True)
-            assert env.action_space.contains(action)
+            assert wrapped_grid_world_env.action_space.contains(action)
 
         except Exception as e:
             pytest.fail(f"PPO compatibility test failed: {e}")
 
-    def test_dqn_compatibility(self, env):
+    def test_dqn_compatibility(self, wrapped_grid_world_env):
         """DQN 알고리즘 호환성 테스트"""
         try:
             # DQN은 Dict observation을 직접 지원하지 않으므로
@@ -106,14 +99,14 @@ class TestSB3Compatibility:
         except Exception as e:
             pytest.fail(f"Vectorized environment test failed: {e}")
 
-    def test_model_save_load(self, env):
+    def test_model_save_load(self, wrapped_grid_world_env):
         """모델 저장/로드 테스트"""
         import tempfile
         import os
 
         try:
             # A2C 모델 생성 및 짧은 학습
-            model = A2C("MultiInputPolicy", env, verbose=0)
+            model = A2C("MultiInputPolicy", wrapped_grid_world_env, verbose=0)
             model.learn(total_timesteps=50)
 
             # 임시 파일에 모델 저장
@@ -125,7 +118,7 @@ class TestSB3Compatibility:
             # 모델 로드 및 테스트
             loaded_model = A2C.load(model_path)
 
-            obs, _ = env.reset()
+            obs, _ = wrapped_grid_world_env.reset()
             original_action, _ = model.predict(obs, deterministic=True)
             loaded_action, _ = loaded_model.predict(obs, deterministic=True)
 
@@ -138,16 +131,16 @@ class TestSB3Compatibility:
         except Exception as e:
             pytest.fail(f"Model save/load test failed: {e}")
 
-    def test_evaluation(self, env):
+    def test_evaluation(self, wrapped_grid_world_env):
         """모델 평가 테스트"""
         try:
             # 간단한 모델 생성
-            model = A2C("MultiInputPolicy", env, verbose=0)
+            model = A2C("MultiInputPolicy", wrapped_grid_world_env, verbose=0)
             model.learn(total_timesteps=100)
 
             # 모델 평가
             mean_reward, std_reward = evaluate_policy(
-                model, env, n_eval_episodes=3, deterministic=True
+                model, wrapped_grid_world_env, n_eval_episodes=3, deterministic=True
             )
 
             # 평가 결과가 유효한 값인지 확인
@@ -159,17 +152,17 @@ class TestSB3Compatibility:
         except Exception as e:
             pytest.fail(f"Model evaluation test failed: {e}")
 
-    def test_observation_preprocessing(self, env):
+    def test_observation_preprocessing(self, wrapped_grid_world_env):
         """관찰 전처리 테스트"""
         try:
-            obs, _ = env.reset()
+            obs, _ = wrapped_grid_world_env.reset()
 
             # SB3가 Dict 관찰을 올바르게 처리하는지 확인
-            model = A2C("MultiInputPolicy", env, verbose=0)
+            model = A2C("MultiInputPolicy", wrapped_grid_world_env, verbose=0)
 
             # 모델이 관찰을 받아들일 수 있는지 테스트
             action, _ = model.predict(obs)
-            assert env.action_space.contains(action)
+            assert wrapped_grid_world_env.action_space.contains(action)
 
         except Exception as e:
             pytest.fail(f"Observation preprocessing test failed: {e}")
