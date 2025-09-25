@@ -20,7 +20,7 @@ class GridWorldEnv(gym.Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
     def __init__(self, render_mode=None, size: int = 5):
-        self.size = 10
+        self.size = size
         self.window_size = 512
 
         self.observation_space = gym.spaces.Dict(
