@@ -127,7 +127,7 @@ class GridWorldEnv(gym.Env):
         canvas = pygame.Surface((self.window_size, self.window_size))
         canvas.fill((255, 255, 255))
         pix_square_size = (
-            self.window_size / self.size
+                self.window_size / self.size
         )
 
         pygame.draw.rect(
