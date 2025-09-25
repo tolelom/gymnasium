@@ -9,4 +9,5 @@ dependencies = [
     "gymnasium",
     "pygame",
     "pre-commit",
+    "opencv-python",
 ]
