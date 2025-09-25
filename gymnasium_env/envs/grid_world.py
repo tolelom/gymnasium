@@ -6,6 +6,7 @@ import pygame
 
 import gymnasium as gym
 from gymnasium import spaces
+from gymnasium.utils import env_checker
 
 
 class Actions(Enum):
