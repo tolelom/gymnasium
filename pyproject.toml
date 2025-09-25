@@ -10,4 +10,17 @@ dependencies = [
     "pygame",
     "pre-commit",
     "opencv-python",
+    "stable-baselines3",
+    "numpy",
+    "matplotlib"
 ]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "pytest-benchmark",
+    "psutil",
+    "tensorboard"
+]
+
