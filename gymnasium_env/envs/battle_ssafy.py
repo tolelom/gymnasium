@@ -40,6 +40,7 @@ class GridWorldEnv(gym.Env):
             Actions.LEFT.value: np.array([-1, 0], dtype=np.int32),
             Actions.DOWN.value: np.array([0, -1], dtype=np.int32),
         }
+        self.last_agent_action_to_derection = 0
 
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
@@ -71,6 +72,8 @@ class GridWorldEnv(gym.Env):
         observation = self._get_obs()
         info = self._get_info()
 
+        self.last_agent_action_to_derection = 0
+
         if self.render_mode == "human":
             self._render_frame()
 
@@ -82,6 +85,7 @@ class GridWorldEnv(gym.Env):
 
         direction = self._action_to_direction[action]
 
+        self.last_agent_action_to_derection = action
         self._agent_location = np.clip(
             self._agent_location + direction, 0, self.size - 1
         )
@@ -150,6 +154,15 @@ class GridWorldEnv(gym.Env):
             for y in range(self.size):
                 canvas.blit(grass_image, (pix_square_size * x, pix_square_size * y))
 
+        if self.last_agent_action_to_derection == 1:
+            agent_image = pygame.transform.rotate(agent_image, 90)
+        elif self.last_agent_action_to_derection == 0:
+            agent_image = pygame.transform.rotate(agent_image, 180)
+        elif self.last_agent_action_to_derection == 3:
+            agent_image = pygame.transform.rotate(agent_image, 270)
+
+
+        print("last_agent_action_to_derection", self.last_agent_action_to_derection)
         canvas.blit(target_image, (pix_square_size * self._target_location))
         canvas.blit(agent_image, (pix_square_size * self._agent_location))
 
