@@ -1,10 +1,39 @@
 # Gymnasium 커스텀 환경
 
-강화학습을 위한 커스텀 Gymnasium 환경 모음입니다. 현재 간단한 그리드 월드 환경을 제공하며, Stable Baselines3와 호환됩니다.
+강화학습을 위한 커스텀 Gymnasium 환경 모음. Stable Baselines3 호환.
 
-## 🎯 프로젝트 개요
+## 환경
 
-이 프로젝트는 강화학습 연구와 실험을 위한 커스텀 환경들을 제공합니다. Gymnasium의 표준 API를 따르며, 다양한 강화학습 라이브러리와 호환됩니다.
+- **GridWorld** — 5x5 그리드에서 타겟을 찾아가는 기본 환경
+- **BattleSsafy** — 배틀시티 기반 환경
 
+## Tech Stack
 
-⭐ 이 프로젝트가 도움이 되었다면 스타를 눌러주세요!
+- Gymnasium + Stable Baselines3 (A2C, PPO)
+- pygame (렌더링)
+- pytest + benchmark (테스트)
+- TensorBoard (학습 시각화)
+
+## 구조
+
+```
+gymnasium_env/envs/     # 커스텀 환경 구현
+training/               # 학습 코드 + 하이퍼파라미터 설정
+tests/                  # 단위/통합/벤치마크 테스트
+```
+
+## 실행
+
+```bash
+pip install -e ".[dev]"
+
+# 학습
+python training/grid_world/train.py
+
+# 테스트
+pytest tests/
+```
+
+## 관련 프로젝트
+
+- [battle_city_deep_learning](https://github.com/tolelom/battle_city_deep_learning) — 배틀시티 강화학습
