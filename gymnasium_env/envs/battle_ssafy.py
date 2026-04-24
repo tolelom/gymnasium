@@ -5,8 +5,6 @@ import numpy as np
 import pygame
 
 import gymnasium as gym
-from gymnasium import spaces
-from gymnasium.utils import env_checker
 
 
 class Actions(Enum):
@@ -134,11 +132,17 @@ class GridWorldEnv(gym.Env):
                 self.window_size / self.size
         )
 
+        def to_screen(pos):
+            return np.array([pos[0], self.size - 1 - pos[1]], dtype=np.float32)
+
+        target_screen = to_screen(self._target_location)
+        agent_screen = to_screen(self._agent_location)
+
         pygame.draw.rect(
             canvas,
             (255, 0, 0),
             pygame.Rect(
-                pix_square_size * self._target_location,
+                pix_square_size * target_screen,
                 (pix_square_size, pix_square_size),
             ),
         )
@@ -146,7 +150,7 @@ class GridWorldEnv(gym.Env):
         pygame.draw.circle(
             canvas,
             (0, 0, 255),
-            (self._agent_location + 0.5) * pix_square_size,
+            (agent_screen + 0.5) * pix_square_size,
             pix_square_size / 3,
         )
 

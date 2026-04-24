@@ -1,5 +1,6 @@
 """환경 등록 및 생성 테스트 (Simplified with unwrapped fixtures)"""
 
+import numpy as np
 import pytest
 import gymnasium as gym
 import gymnasium_env
@@ -59,48 +60,25 @@ def test_env_checker_compliance(grid_world_env):
     """Gymnasium env_checker 호환성 테스트"""
     from gymnasium.utils.env_checker import check_env
 
-    # check_env가 오류 없이 통과하는지 확인 (이미 unwrapped 환경)
-    try:
-        check_env(grid_world_env)
-    except Exception as e:
-        pytest.fail(f"Environment failed check_env: {e}")
+    check_env(grid_world_env)
 
 
 def test_multiple_env_instances():
-    """다중 환경 인스턴스 생성 테스트"""
-    envs = []
-    unwrapped_envs = []
+    """다중 환경 인스턴스가 독립적으로 작동하는지"""
+    envs = [gym.make('gymnasium_env/GridWorld-v0', size=5) for _ in range(3)]
+    try:
+        observations = [env.unwrapped.reset(seed=i)[0] for i, env in enumerate(envs)]
 
-    # 여러 환경 인스턴스 생성
-    for i in range(3):
-        env = gym.make('gymnasium_env/GridWorld-v0', size=5)
-        envs.append(env)
-        unwrapped_envs.append(env.unwrapped)
-
-    # 각 환경이 독립적으로 작동하는지 확인
-    observations = []
-    for i, actual_env in enumerate(unwrapped_envs):
-        obs, _ = actual_env.reset(seed=i)  # 다른 시드 사용
-        observations.append(obs)
-
-    # 서로 다른 초기 상태를 가져야 함 (시드가 다르므로)
-    # 적어도 일부 환경은 다른 초기 상태를 가져야 함
-    all_same = True
-    for i in range(len(observations)):
-        for j in range(i + 1, len(observations)):
-            if not (observations[i]['agent'] == observations[j]['agent']).all() or \
-               not (observations[i]['target'] == observations[j]['target']).all():
-                all_same = False
-                break
-        if not all_same:
-            break
-
-    # 모든 환경이 정확히 같은 초기 상태를 가질 확률은 매우 낮음
-    # 하지만 확률적이므로 너무 엄격하게 검증하지 않음
-
-    # 모든 환경 정리
-    for env in envs:
-        env.close()
+        # 서로 다른 시드로 초기화했으므로 적어도 한 쌍은 다른 상태를 가져야 함
+        assert any(
+            not np.array_equal(a['agent'], b['agent'])
+            or not np.array_equal(a['target'], b['target'])
+            for i, a in enumerate(observations)
+            for b in observations[i + 1:]
+        )
+    finally:
+        for env in envs:
+            env.close()
 
 
 def test_environment_attributes(grid_world_env):
